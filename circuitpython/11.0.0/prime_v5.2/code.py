@@ -1,28 +1,16 @@
-# rp2040
-
-Coding examples for the Raspberry Pico 2040.
-
-![GitHub License](https://img.shields.io/github/license/marie-curie-stem/rp2040)
-![GitHub Release](https://img.shields.io/github/v/release/marie-curie-stem/rp2040)
-
-## Circuitpython
-
-Here is an old benchmark test with prime numbers, running on Circuitpython 10.2.0 since 2026-05-17. 
-
-
-![Finding primes](circuitpython/11.0.0/prime_v5.2/finding_primes.jpg)
-
-Executed as `code.py`.
-
-``` py
 # prime v5.2 2023-12-14 for Raspberry Pico 2040
 # cycles through limits and writes to the filesystem
-# increase to 200 MHz, updated to Circuitpython 10.2.0 2026-05-17
-# https://github.com/marie-curie-stem/rp2040/blob/main/circuitpython/10.2.0/prime_v5.2/code.py
+# increase to 200 MHz, updated to Circuitpython 11.0.0 2026-10-08
+# https://github.com/marie-curie-stem/rp2040/blob/main/circuitpython/11.0.0/prime_v5.2/code.py
 
 import math, time, digitalio, board, os, neopixel, microcontroller
+from lcd1602 import LCD
 
-scope = [100, 1000, 10000, 100000, 1000000, 10000000, 25000000, 100000000, 1000000000, 2147483647, 4294967295]
+scope = [100, 1000, 10000, 100000, 1000000, 10000000, 25000000,
+         100000000, 1000000000, 2147483647, 4294967295]
+scope_string = ["100", "1,000", "10,000", "100,000", "1,000,000",
+        "10,000,000", "25,000,000", "100,000,000",
+        "1,000,000,000", "2,147,483,647", "4,294,967,295"]
 reference = [25, 168, 1229, 9592, 78498, 664579, 1565927, 5761455, 50847534, 105097564, 203280221]
 time_calc = [0, 0, 0, 0, 0, 0, 0, 0, 0]
 
@@ -32,6 +20,11 @@ RED   = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE  = (0, 0, 255)
 led[0] = RED
+
+lcd = LCD()
+lcd.clear()
+lcd.message(" Finding Primes")
+lcd.message(" YD-RP2040 v5.2", line=1)
 
 def is_prime(number):
     global found
@@ -66,7 +59,7 @@ def elapsed_time(seconds):
     hours = int(seconds/3600)
     minutes = int(seconds/60 - hours*60)
     sec = int(seconds - minutes*60 - hours*3600)
-    return(f"{hours}h {minutes}min {sec}s")
+    return(f"{hours}h {minutes}m {sec}s")
 
 def lightshow():
     for i in range(3141):
@@ -83,7 +76,9 @@ if __name__ == "__main__":
         last = scope[i]
         found = 4              # we start from 11, know 2, 3, 5, 7
         primes = [3, 5, 7]     # exclude 2 since we only test odd numbers
-        print(f"\nPrime numbers to {last} in v5.2")
+        print(f"\nPrime numbers to {last} in v5.2 - 2026-10-08")
+        lcd.clear()
+        lcd.message(f"to {scope_string[i]}")
         start = time.monotonic()
         dot = start
         column = 1
@@ -106,6 +101,7 @@ if __name__ == "__main__":
                 if column > 30:
                     t = elapsed_time(time.monotonic() - start)
                     print(f" {t} - {number} {int(number*100/last)}% ")
+                    lcd.message(f"{t} - {int(number*100/last)}% ", line=1)
                     column = 1
         duration = time.monotonic() - start
         led[0] = (255, 0, 0)
@@ -139,38 +135,3 @@ if __name__ == "__main__":
 
 while True:
     lightshow()
-```
-
-## Arduino C++
-
-Just let the neopixel on pin `board.NEOPIXEL` cycle through the colors.
-
-``` cpp
-/* Blink NeoPixel*/
-#include <Adafruit_NeoPixel.h>
-
-#define PIN 8
-
-Adafruit_NeoPixel neo(1, PIN, NEO_GRB + NEO_KHZ800);
-
-#define DELAYVAL 500 // Time (in milliseconds) to pause between pixels
-
-void setup() {
-  neo.begin();
-  neo.show();
-  Serial.begin(115200);
-  delay(1000);
-  Serial.println("\nLet's start!");
-  Serial.println("Pin used: 8");
-}
-
-void loop() {
-  neo.setPixelColor(1, 255, 0, 255);
-  neo.show();
-  delay(2000);
-  neo.setPixelColor(1, 0, 255, 255);
-  delay(2000);
-  neo.show();
-  Serial.println("Es geht was.");
-}
-```

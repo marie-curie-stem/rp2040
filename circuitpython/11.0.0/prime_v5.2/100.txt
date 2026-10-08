@@ -1,0 +1,3 @@
+vcc_gnd_yd_rp2040
+Primes to 100 took 0.003998758 seconds.
+Found 25 primes. Should be 25.
